@@ -3,55 +3,31 @@ import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import java.util.*;
 
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 public class ReadXml
 {
+
+    static String stroka, stroka2;
+    final static String ADDRESS = "I:\\InfoMaximum\\Projects\\address.xml";
+    static List<String> item = new ArrayList<>();
+    static List<String> city_floor = new ArrayList<>();
+
     public static void main(String[] args)
     {
-        String str;
-        String city, street;
-        int house, floor;
-        String stroka, stroka2;
-
-//        File fXml=new File("I://InfoMaximum/Projects/src/main/java/test.xml");
-//        File fXml=new File("../../../../test.xml");
-        File fXml=new File("../../../../address.xml");
-//        File fXml=new File("../../../../address_half.xml");
 
         try
         {
-            DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();
-            DocumentBuilder db=dbf.newDocumentBuilder();
-            Document doc=db.parse(fXml);
-
-            doc.getDocumentElement().normalize();
-//            System.out.println(" element ["+doc.getDocumentElement().getNodeName()+"]");
-
-            NodeList nodeLst=doc.getElementsByTagName("item");
-            List<String> item = new ArrayList<>();
-            List<String> city_floor = new ArrayList<>();
-
-            for(int je=0;je<nodeLst.getLength();je++)
-            {
-                Node fstNode=nodeLst.item(je);
-                if(fstNode.getNodeType()==Node.ELEMENT_NODE)
-                {
-                    Element elj=(Element)fstNode;
-                    str=elj.getAttribute("city");
-                    city=String.valueOf(str);
-                    str=elj.getAttribute("street");
-                    street=String.valueOf(str);
-                    str=elj.getAttribute("house");
-                    house=Integer.parseInt(str);
-                    str=elj.getAttribute("floor");
-                    floor=Integer.parseInt(str);
-
-                    stroka = "[City " + city + ", street " + street + ", house " + house + ", floors: " + floor + "]";
-                    stroka2 = "In the city of " + city + " buildings with " + floor + " floors";
-
-                    item.add(stroka);
-                    city_floor.add(stroka2);
-                }
-            }
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser parser = factory.newSAXParser();
+            XMLHandler handler = new XMLHandler();
+            parser.parse(new File(ADDRESS), handler);
 
             HashMap<String, Integer> hm = new HashMap<String, Integer>();
             Integer count;
@@ -82,5 +58,20 @@ public class ReadXml
             }
         }
         catch(Exception ei){}
+    }
+    static class XMLHandler extends DefaultHandler {
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) {
+            if (qName.equals("item")) {
+                String city = attributes.getValue("city");
+                String street = attributes.getValue("street");
+                int house = Integer.parseInt(attributes.getValue("house"));
+                int floor = Integer.parseInt(attributes.getValue("floor"));
+                stroka = "[City " + city + ", street " + street + ", house " + house + ", floors: " + floor + "]";
+                item.add(stroka);
+                stroka2 = "In the city of " + city + " buildings with " + floor + " floors";
+                city_floor.add(stroka2);
+            }
+        }
     }
 }
