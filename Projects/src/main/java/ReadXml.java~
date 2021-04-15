@@ -1,0 +1,85 @@
+import java.io.*;
+import javax.xml.parsers.*;
+import org.w3c.dom.*;
+import java.util.*;
+
+public class ReadXml
+{
+    public static void main(String[] args)
+    {
+        String str;
+        String city, street;
+        int house, floor;
+        String stroka, stroka2;
+
+//        File fXml=new File("I://InfoMaximum/Projects/src/main/java/test.xml");
+//        File fXml=new File("../../../../test.xml");
+        File fXml=new File("../../../../address_half.xml");
+
+        try
+        {
+            DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();
+            DocumentBuilder db=dbf.newDocumentBuilder();
+            Document doc=db.parse(fXml);
+
+            doc.getDocumentElement().normalize();
+//            System.out.println(" element ["+doc.getDocumentElement().getNodeName()+"]");
+
+            NodeList nodeLst=doc.getElementsByTagName("item");
+            List<String> item = new ArrayList<>();
+            List<String> city_floor = new ArrayList<>();
+
+            for(int je=0;je<nodeLst.getLength();je++)
+            {
+                Node fstNode=nodeLst.item(je);
+                if(fstNode.getNodeType()==Node.ELEMENT_NODE)
+                {
+                    Element elj=(Element)fstNode;
+                    str=elj.getAttribute("city");
+                    city=String.valueOf(str);
+                    str=elj.getAttribute("street");
+                    street=String.valueOf(str);
+                    str=elj.getAttribute("house");
+                    house=Integer.parseInt(str);
+                    str=elj.getAttribute("floor");
+                    floor=Integer.parseInt(str);
+
+                    stroka = "[City " + city + ", street " + street + ", house " + house + ", floors: " + floor + "]";
+                    stroka2 = "In the city of " + city + " buildings with " + floor + " floors";
+
+                    item.add(stroka);
+                    city_floor.add(stroka2);
+                }
+            }
+
+            HashMap<String, Integer> hm = new HashMap<String, Integer>();
+            Integer count;
+            for (String it : item) {
+                count = hm.get(it);
+                if (count == null) hm.put(it, 1);
+                else hm.put(it, count + 1);
+            }
+            System.out.println("Count of items: " + item.size());
+            System.out.println("Count of unique items: " + hm.size());
+            System.out.println("Double items: ");
+
+            for (Object key : hm.keySet()) {
+                if (hm.get(key) > 1) {
+                    System.out.println(key + "   ---> " + hm.get(key) + " duplicates");
+                }
+            }
+            System.out.println("\n*******************\n");
+            HashMap<String, Integer> cf = new HashMap<String, Integer>();
+            Integer count2;
+            for (String it : city_floor) {
+                count2 = cf.get(it);
+                if (count2 == null) cf.put(it, 1);
+                else cf.put(it, count2 + 1);
+            }
+            for (Object key : cf.keySet()) {
+                System.out.println(key + "   ---> " + cf.get(key) + " items");
+            }
+        }
+        catch(Exception ei){}
+    }
+}
